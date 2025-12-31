@@ -880,7 +880,7 @@
         // --- AUDIO SYSTEM ---
         function initAudio() {
             // Volume utama (untuk semua suara)
-            mainVol = new Tone.Volume(-10).toDestination(); 
+            mainVol = new Tone.Volume(-5).toDestination(); // Dinaikkan dari -10 ke -5 
             reverb = new Tone.Reverb(1).connect(mainVol);
             
             // SFX (Efek Suara)
@@ -888,17 +888,15 @@
             synthWrong = new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 } }).connect(reverb);
             synthLevelUp = new Tone.FMSynth({ envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.3 } }).connect(reverb);
             
-            // --- BGM (BACKGROUND MUSIC) DARI GITHUB ---
-            // PERBAIKAN: Menggunakan link raw.githubusercontent.com agar tidak kena blokir redirect/CORS
-            // Link Asli: https://github.com/tqch320/liyaaa/raw/refs/heads/main/pad-happy-dayz-are-ahead-236456.mp3
-            // Link Fix:
-            const bgmURL = "https://raw.githubusercontent.com/tqch320/liyaaa/refs/heads/main/pad-happy-dayz-are-ahead-236456.mp3";
+            // --- BGM (BACKGROUND MUSIC) DARI LOKAL ---
+            // Menggunakan file lokal agar lebih stabil
+            const bgmURL = "pad-happy-dayz-are-ahead-236456.mp3";
 
             bgmPlayer = new Tone.Player({
                 url: bgmURL,
                 loop: true,
                 autostart: false,
-                volume: -10, // Volume dinaikkan sedikit
+                volume: -5, // Volume dinaikkan dari -10 ke -5
                 onload: () => {
                     console.log("Musik Background Berhasil Dimuat!");
                     const statusEl = document.getElementById('music-status');
@@ -928,8 +926,12 @@
 
         // Fungsi untuk mengontrol musik latar
         function toggleBGM(play) {
+            console.log("toggleBGM called with play:", play);
             // Cek apakah player ada
-            if (!bgmPlayer) return;
+            if (!bgmPlayer) {
+                console.log("bgmPlayer not initialized");
+                return;
+            }
             
             // Cek apakah player sudah loaded. Jika belum, jangan error, biarkan onload nanti yang handle.
             if (!bgmPlayer.loaded) {
@@ -940,14 +942,24 @@
             if (play) {
                 // Pastikan Audio Context berjalan (PENTING untuk browser modern)
                 if (Tone.context.state !== 'running') {
+                    console.log("Starting Tone context");
                     Tone.start().then(() => {
-                        if (bgmPlayer.state !== "started") bgmPlayer.start();
+                        if (bgmPlayer.state !== "started") {
+                            console.log("Starting BGM");
+                            bgmPlayer.start();
+                        }
                     });
                 } else {
-                    if (bgmPlayer.state !== "started") bgmPlayer.start();
+                    if (bgmPlayer.state !== "started") {
+                        console.log("Starting BGM");
+                        bgmPlayer.start();
+                    }
                 }
             } else {
-                if (bgmPlayer.state === "started") bgmPlayer.stop();
+                if (bgmPlayer.state === "started") {
+                    console.log("Stopping BGM");
+                    bgmPlayer.stop();
+                }
             }
         }
 
